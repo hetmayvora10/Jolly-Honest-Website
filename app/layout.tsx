@@ -24,6 +24,48 @@ export const metadata: Metadata = {
   title: "Jolly & Honest | Gents Tailoring, Ahmedabad",
   description:
     "Jolly & Honest — 74 years of bespoke gents tailoring in Navrangpura, Ahmedabad. Sherwanis, shirts, coats, suits and trousers, hand-tailored to fit.",
+  verification: {
+    google: "MiY15mRK1A2qXtVbclkUH81KQFpO6ggz1EUiWCCgxVA",
+  },
+};
+
+const localBusinessJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ClothingStore",
+  name: "Jolly & Honest",
+  image: "https://jollyhonest.vercel.app/images/logo.jpg",
+  url: "https://jollyhonest.vercel.app",
+  telephone: "+91-84010-45351",
+  priceRange: "₹₹",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress:
+      "Havmor Building, Beside Havmor Restaurant, Near Hotel Armoise, Navrangpura Cross Roads",
+    addressLocality: "Ahmedabad",
+    addressRegion: "Gujarat",
+    postalCode: "380009",
+    addressCountry: "IN",
+  },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ],
+      opens: "10:00",
+      closes: "20:00",
+    },
+  ],
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "4.6",
+    reviewCount: "187",
+  },
 };
 
 export default function RootLayout({
@@ -37,6 +79,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+        />
         {children}
         <Analytics />
         <SpeedInsights />
