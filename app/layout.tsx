@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   title: "Jolly & Honest | Gents Tailoring, Ahmedabad",
   description:
     "Jolly & Honest — 74 years of bespoke gents tailoring in Navrangpura, Ahmedabad. Sherwanis, shirts, coats, suits and trousers, hand-tailored to fit.",
+  verification: {
+    google: "MiY15mRK1A2qXtVbclkUH81KQFpO6ggz1EUiWCCgxVA",
+  },
 };
 
 const localBusinessJsonLd = {
