@@ -20,7 +20,7 @@ export default function Footer() {
           Bespoke gents tailoring in Navrangpura, Ahmedabad — 74 years of
           honest craftsmanship.
         </p>
-        <p className="text-xs text-cream/50">
+        <p className="text-xs text-cream/70">
           © {new Date().getFullYear()} Jolly &amp; Honest. All rights
           reserved.
         </p>
