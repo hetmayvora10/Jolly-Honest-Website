@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 const NAV_LINKS = [
   { href: "#heritage", label: "Heritage" },
   { href: "#services", label: "Services" },
+  { href: "#book", label: "Book a Fitting" },
   { href: "#craftsmanship", label: "Craftsmanship" },
   { href: "#reviews", label: "Reviews" },
   { href: "#visit", label: "Visit Us" },
@@ -59,7 +60,7 @@ export default function Navbar() {
         </ul>
 
         <a
-          href="#visit"
+          href="#book"
           className="hidden rounded-full bg-burgundy px-5 py-2.5 text-sm font-medium text-cream shadow-sm transition-colors hover:bg-burgundy-dark md:inline-block"
         >
           Book a Fitting
@@ -106,7 +107,7 @@ export default function Navbar() {
             ))}
           </ul>
           <a
-            href="#visit"
+            href="#book"
             onClick={() => setOpen(false)}
             className="mt-3 block rounded-full bg-burgundy px-5 py-3 text-center text-sm font-medium text-cream"
           >
