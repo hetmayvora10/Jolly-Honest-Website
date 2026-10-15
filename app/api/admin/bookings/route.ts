@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
+import { getAdminDb } from "@/lib/firebase/admin";
+import { verifyFirebaseIdToken } from "@/lib/firebase/verify-token";
 import type { BookingRecord } from "@/lib/booking";
 
 export async function GET(request: Request) {
@@ -11,7 +12,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    await getAdminAuth().verifyIdToken(idToken);
+    await verifyFirebaseIdToken(idToken);
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
