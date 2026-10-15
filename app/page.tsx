@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Heritage from "@/components/Heritage";
 import Services from "@/components/Services";
+import Booking from "@/components/Booking";
 import Craftsmanship from "@/components/Craftsmanship";
 import Reviews from "@/components/Reviews";
 import Contact from "@/components/Contact";
@@ -15,6 +16,7 @@ export default function Home() {
         <Hero />
         <Heritage />
         <Services />
+        <Booking />
         <Craftsmanship />
         <Reviews />
         <Contact />

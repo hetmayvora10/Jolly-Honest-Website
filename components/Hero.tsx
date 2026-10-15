@@ -72,7 +72,7 @@ export default function Hero() {
           className="mt-2 flex flex-col gap-4 sm:flex-row"
         >
           <a
-            href="#visit"
+            href="#book"
             className="rounded-full bg-cream px-8 py-3.5 text-sm font-semibold tracking-wide text-burgundy shadow-lg transition-transform hover:scale-[1.03]"
           >
             Book a Fitting
