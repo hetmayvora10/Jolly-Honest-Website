@@ -10,6 +10,10 @@ const HOURS = [
   { day: "Sunday", time: "Closed" },
 ];
 
+const PHONE_DISPLAY = "+91 84010 45351";
+const PHONE_TEL = "+918401045351";
+const PHONE_WHATSAPP = "918401045351";
+
 export default function Contact() {
   return (
     <section id="visit" className="bg-cream">
@@ -75,9 +79,22 @@ export default function Contact() {
               <p className="mt-2 text-ink/70">
                 Call ahead to book a fitting or request a home visit.
               </p>
-              <span className="mt-3 inline-block rounded-full border border-dashed border-burgundy/40 px-6 py-3 text-sm font-semibold text-burgundy/70">
-                [ Add phone number ]
-              </span>
+              <div className="mt-3 flex flex-wrap gap-3">
+                <a
+                  href={`tel:${PHONE_TEL}`}
+                  className="inline-block rounded-full bg-burgundy px-6 py-3 text-sm font-semibold text-cream transition-colors hover:bg-burgundy-dark"
+                >
+                  Call {PHONE_DISPLAY}
+                </a>
+                <a
+                  href={`https://wa.me/${PHONE_WHATSAPP}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block rounded-full border border-burgundy/30 px-6 py-3 text-sm font-semibold text-burgundy transition-colors hover:bg-burgundy/5"
+                >
+                  WhatsApp Us
+                </a>
+              </div>
             </div>
           </motion.div>
 
