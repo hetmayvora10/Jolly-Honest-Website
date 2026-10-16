@@ -41,8 +41,11 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run Playwright tests
-        run: npx playwright test
+      - name: Run smoke tests
+        run: npx playwright test --grep @smoke
+
+      - name: Run regression tests
+        run: npx playwright test --grep @regression
 
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
