@@ -1,7 +1,5 @@
-"use client";
-
-import { motion } from "framer-motion";
 import type { ReactNode } from "react";
+import Reveal from "./Reveal";
 
 type Feature = {
   title: string;
@@ -18,6 +16,7 @@ const iconProps = {
   strokeWidth: 1.5,
   strokeLinecap: "round" as const,
   strokeLinejoin: "round" as const,
+  "aria-hidden": true,
 };
 
 const FEATURES: Feature[] = [
@@ -68,31 +67,22 @@ const FEATURES: Feature[] = [
 
 export default function Craftsmanship() {
   return (
-    <section id="craftsmanship" className="bg-burgundy text-cream">
+    <section id="craftsmanship" className="surface-dark bg-burgundy text-cream">
       <div className="mx-auto max-w-6xl px-6 py-24 sm:px-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6 }}
-          className="mx-auto max-w-2xl text-center"
-        >
+        <Reveal className="mx-auto max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gold">
             Why Jolly &amp; Honest
           </p>
           <h2 className="mt-4 font-serif text-4xl font-semibold sm:text-5xl">
             Craftsmanship you can trust
           </h2>
-        </motion.div>
+        </Reveal>
 
         <div className="mt-14 grid gap-8 sm:grid-cols-2">
           {FEATURES.map((feature, i) => (
-            <motion.div
+            <Reveal
               key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.5, delay: (i % 2) * 0.1 }}
+              delay={(i % 2) * 0.06}
               className="flex gap-5 rounded-2xl border border-cream/15 bg-cream/[0.04] p-7"
             >
               <div className="flex h-12 w-12 flex-none items-center justify-center rounded-full bg-cream/10 text-gold">
@@ -106,7 +96,7 @@ export default function Craftsmanship() {
                   {feature.description}
                 </p>
               </div>
-            </motion.div>
+            </Reveal>
           ))}
         </div>
       </div>

@@ -1,6 +1,4 @@
-"use client";
-
-import { motion } from "framer-motion";
+import Reveal from "./Reveal";
 
 const STATS = [
   { value: "74+", label: "Years of Craft" },
@@ -14,12 +12,7 @@ export default function Heritage() {
     <section id="heritage" className="bg-cream">
       <div className="mx-auto max-w-6xl px-6 py-24 sm:px-10">
         <div className="grid gap-14 md:grid-cols-2 md:gap-20">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6 }}
-          >
+          <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-burgundy/70">
               Our Heritage
             </p>
@@ -41,15 +34,9 @@ export default function Heritage() {
                 the same honesty the name has carried since the beginning.
               </p>
             </div>
-          </motion.div>
+          </Reveal>
 
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="grid grid-cols-2 gap-5"
-          >
+          <Reveal delay={0.06} className="grid grid-cols-2 gap-5">
             {STATS.map((stat) => (
               <div
                 key={stat.label}
@@ -63,7 +50,7 @@ export default function Heritage() {
                 </div>
               </div>
             ))}
-          </motion.div>
+          </Reveal>
         </div>
       </div>
     </section>

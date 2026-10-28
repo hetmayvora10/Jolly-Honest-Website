@@ -25,7 +25,7 @@ export default function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b transition-colors duration-300 ${
+      className={`sticky top-0 z-50 w-full border-b transition-colors duration-200 ${
         scrolled
           ? "border-burgundy/10 bg-cream/95 backdrop-blur-sm"
           : "border-transparent bg-cream"
@@ -51,7 +51,7 @@ export default function Navbar() {
             <li key={link.href}>
               <a
                 href={link.href}
-                className="text-sm font-medium tracking-wide text-ink/80 transition-colors hover:text-burgundy"
+                className="inline-flex min-h-7 items-center text-sm font-medium tracking-wide text-ink/80 transition-colors hover:text-burgundy"
               >
                 {link.label}
               </a>
@@ -61,7 +61,7 @@ export default function Navbar() {
 
         <a
           href="#book"
-          className="hidden rounded-full bg-burgundy px-5 py-2.5 text-sm font-medium text-cream shadow-sm transition-colors hover:bg-burgundy-dark md:inline-block"
+          className="hidden rounded-full bg-burgundy px-5 py-2.5 text-sm font-medium text-cream shadow-sm pressable hover:bg-burgundy-dark md:inline-block"
         >
           Book a Fitting
         </a>
@@ -71,7 +71,8 @@ export default function Navbar() {
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
           aria-expanded={open}
-          className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 md:hidden"
+          aria-controls="mobile-menu"
+          className="flex h-11 w-11 flex-col items-center justify-center gap-1.5 md:hidden"
         >
           <span
             className={`h-[1.5px] w-6 bg-burgundy transition-transform ${
@@ -92,7 +93,7 @@ export default function Navbar() {
       </nav>
 
       {open && (
-        <div className="border-t border-burgundy/10 bg-cream px-6 pb-6 md:hidden">
+        <div id="mobile-menu" className="border-t border-burgundy/10 bg-cream px-6 pb-6 md:hidden">
           <ul className="flex flex-col gap-1 pt-4">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
@@ -109,7 +110,7 @@ export default function Navbar() {
           <a
             href="#book"
             onClick={() => setOpen(false)}
-            className="mt-3 block rounded-full bg-burgundy px-5 py-3 text-center text-sm font-medium text-cream"
+            className="mt-3 block rounded-full bg-burgundy px-5 py-3 text-center text-sm font-medium text-cream pressable hover:bg-burgundy-dark"
           >
             Book a Fitting
           </a>

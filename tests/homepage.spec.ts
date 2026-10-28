@@ -10,6 +10,11 @@ test.describe("Homepage", () => {
       await home.goto();
       await expect(page).toHaveTitle(/Jolly & Honest/);
       await expect(home.heroHeading).toBeVisible();
+      // Measured after the entrance finishes: catches animations that
+      // settle at scale(0) even though they start out visible.
+      await home.waitForEntranceToFinish(home.heroLogo);
+      const logo = await home.heroLogo.boundingBox();
+      expect(logo?.width).toBeGreaterThan(100);
     }
   );
 

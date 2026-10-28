@@ -1,8 +1,10 @@
-"use client";
+import Reveal from "./Reveal";
 
-import { motion } from "framer-motion";
+const RATING = 4.6;
+const STAR_PATH =
+  "m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.2 6.1-.7L12 3Z";
 
-function Star({ filled }: { filled: boolean }) {
+function StarIcon({ filled }: { filled: boolean }) {
   return (
     <svg
       width="22"
@@ -11,14 +13,22 @@ function Star({ filled }: { filled: boolean }) {
       fill={filled ? "currentColor" : "none"}
       stroke="currentColor"
       strokeWidth="1.5"
-      className="text-gold"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.2 6.1-.7L12 3Z"
-      />
+      <path d={STAR_PATH} />
     </svg>
+  );
+}
+
+function Star({ fill }: { fill: number }) {
+  return (
+    <span className="relative inline-block text-gold-dark">
+      <StarIcon filled={false} />
+      <span className="absolute inset-y-0 left-0 overflow-hidden" style={{ width: `${fill * 100}%` }}>
+        <StarIcon filled />
+      </span>
+    </span>
   );
 }
 
@@ -26,12 +36,7 @@ export default function Reviews() {
   return (
     <section id="reviews" className="bg-white">
       <div className="mx-auto max-w-4xl px-6 py-24 text-center sm:px-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6 }}
-        >
+        <Reveal>
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-burgundy/70">
             Trusted in Ahmedabad
           </p>
@@ -40,12 +45,12 @@ export default function Reviews() {
           </h2>
 
           <div className="mt-10 flex flex-col items-center gap-3 rounded-3xl border border-burgundy/10 bg-cream px-10 py-10 sm:mx-auto sm:max-w-md">
-            <div className="font-serif text-6xl font-semibold text-burgundy">
-              4.6
+            <div aria-hidden="true" className="font-serif text-6xl font-semibold text-burgundy">
+              {RATING}
             </div>
-            <div className="flex gap-1">
+            <div role="img" aria-label={`Rated ${RATING} out of 5`} className="flex gap-1">
               {[1, 2, 3, 4, 5].map((n) => (
-                <Star key={n} filled={n <= 5} />
+                <Star key={n} fill={Math.min(Math.max(RATING - (n - 1), 0), 1)} />
               ))}
             </div>
             <p className="text-sm font-medium uppercase tracking-wide text-ink/60">
@@ -57,7 +62,7 @@ export default function Reviews() {
             Generations of Ahmedabad families have trusted Jolly &amp; Honest
             for their weddings, work-wear and everyday tailoring needs.
           </p>
-        </motion.div>
+        </Reveal>
       </div>
     </section>
   );
