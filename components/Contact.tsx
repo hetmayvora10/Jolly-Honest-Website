@@ -1,6 +1,4 @@
-"use client";
-
-import { motion } from "framer-motion";
+import Reveal from "./Reveal";
 
 const ADDRESS =
   "Havmor Building, Beside Havmor Restaurant, Near Hotel Armoise, Navrangpura Cross Roads, Navrangpura, Ahmedabad, Gujarat 380009";
@@ -18,27 +16,18 @@ export default function Contact() {
   return (
     <section id="visit" className="bg-cream">
       <div className="mx-auto max-w-6xl px-6 py-24 sm:px-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6 }}
-          className="mx-auto max-w-2xl text-center"
-        >
+        <Reveal className="mx-auto max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-burgundy/70">
             Visit the Shop
           </p>
           <h2 className="mt-4 font-serif text-4xl font-semibold text-ink sm:text-5xl">
             Come see us in Navrangpura
           </h2>
-        </motion.div>
+        </Reveal>
 
         <div className="mt-14 grid gap-8 overflow-hidden rounded-3xl border border-burgundy/10 bg-white shadow-sm lg:grid-cols-2">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.6 }}
+          <Reveal
+            from="left"
             className="flex flex-col justify-center gap-8 p-8 sm:p-10"
           >
             <div>
@@ -52,7 +41,7 @@ export default function Contact() {
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 inline-block text-sm font-semibold text-burgundy underline underline-offset-4"
+                className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-burgundy underline underline-offset-4"
               >
                 Get Directions
               </a>
@@ -82,7 +71,7 @@ export default function Contact() {
               <div className="mt-3 flex flex-wrap gap-3">
                 <a
                   href={`tel:${PHONE_TEL}`}
-                  className="inline-block rounded-full bg-burgundy px-6 py-3 text-sm font-semibold text-cream transition-colors hover:bg-burgundy-dark"
+                  className="inline-block rounded-full bg-burgundy px-6 py-3 text-sm font-semibold text-cream pressable hover:bg-burgundy-dark"
                 >
                   Call {PHONE_DISPLAY}
                 </a>
@@ -90,21 +79,15 @@ export default function Contact() {
                   href={`https://wa.me/${PHONE_WHATSAPP}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block rounded-full border border-burgundy/30 px-6 py-3 text-sm font-semibold text-burgundy transition-colors hover:bg-burgundy/5"
+                  className="inline-block rounded-full border border-burgundy/30 px-6 py-3 text-sm font-semibold text-burgundy pressable hover:bg-burgundy/5"
                 >
                   WhatsApp Us
                 </a>
               </div>
             </div>
-          </motion.div>
+          </Reveal>
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.6 }}
-            className="min-h-[320px]"
-          >
+          <Reveal from="right" className="min-h-[320px]">
             <iframe
               title="Jolly & Honest location map"
               src={`https://www.google.com/maps?q=${encodeURIComponent(
@@ -114,7 +97,7 @@ export default function Contact() {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />
-          </motion.div>
+          </Reveal>
         </div>
       </div>
     </section>

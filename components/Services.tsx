@@ -1,7 +1,5 @@
-"use client";
-
-import { motion } from "framer-motion";
 import type { ReactNode } from "react";
+import Reveal from "./Reveal";
 
 type Service = {
   title: string;
@@ -18,6 +16,7 @@ const iconProps = {
   strokeWidth: 1.5,
   strokeLinecap: "round" as const,
   strokeLinejoin: "round" as const,
+  "aria-hidden": true,
 };
 
 const SERVICES: Service[] = [
@@ -91,13 +90,7 @@ export default function Services() {
   return (
     <section id="services" className="bg-white">
       <div className="mx-auto max-w-6xl px-6 py-24 sm:px-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6 }}
-          className="mx-auto max-w-2xl text-center"
-        >
+        <Reveal className="mx-auto max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-burgundy/70">
             What We Tailor
           </p>
@@ -108,19 +101,16 @@ export default function Services() {
             From celebration wear to everyday formals, every piece is
             measured, cut and finished in-house.
           </p>
-        </motion.div>
+        </Reveal>
 
         <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {SERVICES.map((service, i) => (
-            <motion.div
+            <Reveal
               key={service.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.5, delay: (i % 3) * 0.08 }}
-              className="group rounded-2xl border border-burgundy/10 bg-cream p-8 transition-shadow hover:shadow-lg"
+              delay={(i % 3) * 0.06}
+              className="rounded-2xl border border-burgundy/10 bg-cream p-8"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-burgundy text-cream transition-transform group-hover:scale-105">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-burgundy text-cream">
                 {service.icon}
               </div>
               <h3 className="mt-6 font-serif text-2xl font-semibold text-ink">
@@ -129,7 +119,7 @@ export default function Services() {
               <p className="mt-2 leading-relaxed text-ink/70">
                 {service.description}
               </p>
-            </motion.div>
+            </Reveal>
           ))}
         </div>
       </div>

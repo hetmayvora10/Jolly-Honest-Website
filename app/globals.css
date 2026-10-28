@@ -10,7 +10,13 @@
   --color-cream: #fff5ec;
   --color-cream-dark: #f2e4d3;
   --color-ink: #2a1210;
-  --color-gold: #c9a15a;
+  /* Tuned from #c9a15a: same hue, nudged to clear 4.5:1 as text on burgundy. */
+  --color-gold: #cda967;
+  /* Deeper gold for graphics on light surfaces (3:1 non-text minimum). */
+  --color-gold-dark: #ad8339;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --focus-ring: var(--color-burgundy);
 }
 
 @theme inline {
@@ -23,6 +29,8 @@
   --color-cream-dark: var(--color-cream-dark);
   --color-ink: var(--color-ink);
   --color-gold: var(--color-gold);
+  --color-gold-dark: var(--color-gold-dark);
+  --ease-out: var(--ease-out);
   --font-sans: var(--font-geist-sans);
   --font-serif: var(--font-cormorant);
   --font-mono: var(--font-geist-mono);
@@ -35,4 +43,36 @@ body {
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Sections on burgundy flip the focus ring to cream so it stays visible. */
+.surface-dark {
+  --focus-ring: var(--color-cream);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+::placeholder {
+  color: color-mix(in srgb, var(--color-ink) 60%, transparent);
+}
+
+@utility pressable {
+  transition-property: color, background-color, border-color, scale;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-out);
+  &:active {
+    scale: 0.97;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .pressable:active {
+    scale: none;
+  }
 }

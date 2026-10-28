@@ -53,7 +53,7 @@ function LoginForm() {
             name="email"
             type="email"
             required
-            className="rounded-xl border border-burgundy/15 px-4 py-2.5 text-base outline-none focus:border-burgundy"
+            className="rounded-xl border border-burgundy/15 px-4 py-2.5 text-base focus:border-burgundy"
           />
         </label>
         <label className="mt-4 flex flex-col gap-1.5 text-sm font-medium text-ink">
@@ -62,16 +62,16 @@ function LoginForm() {
             name="password"
             type="password"
             required
-            className="rounded-xl border border-burgundy/15 px-4 py-2.5 text-base outline-none focus:border-burgundy"
+            className="rounded-xl border border-burgundy/15 px-4 py-2.5 text-base focus:border-burgundy"
           />
         </label>
 
-        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+        {error && <p role="alert" className="mt-4 text-sm text-red-700">{error}</p>}
 
         <button
           type="submit"
           disabled={loading}
-          className="mt-6 w-full rounded-full bg-burgundy px-6 py-3 text-sm font-semibold text-cream transition-colors hover:bg-burgundy-dark disabled:opacity-60"
+          className="mt-6 w-full rounded-full bg-burgundy px-6 py-3 text-sm font-semibold text-cream pressable hover:bg-burgundy-dark disabled:opacity-60"
         >
           {loading ? "Signing in…" : "Sign In"}
         </button>
@@ -117,14 +117,14 @@ function Dashboard({ user }: { user: User }) {
           </div>
           <button
             onClick={() => signOut(getClientAuth())}
-            className="rounded-full border border-burgundy/30 px-5 py-2 text-sm font-semibold text-burgundy transition-colors hover:bg-burgundy/5"
+            className="min-h-11 rounded-full border border-burgundy/30 px-5 text-sm font-semibold text-burgundy pressable hover:bg-burgundy/5"
           >
             Sign Out
           </button>
         </div>
 
         <div className="mt-8 overflow-x-auto rounded-2xl border border-burgundy/10 bg-white">
-          {error && <p className="p-6 text-sm text-red-600">{error}</p>}
+          {error && <p role="alert" className="p-6 text-sm text-red-700">{error}</p>}
           {!error && !bookings && <p className="p-6 text-sm text-ink/60">Loading…</p>}
           {!error && bookings && bookings.length === 0 && (
             <p className="p-6 text-sm text-ink/60">No bookings yet.</p>
@@ -132,7 +132,7 @@ function Dashboard({ user }: { user: User }) {
           {!error && bookings && bookings.length > 0 && (
             <table className="w-full min-w-[720px] text-left text-sm">
               <thead>
-                <tr className="border-b border-burgundy/10 text-xs uppercase tracking-wide text-ink/50">
+                <tr className="border-b border-burgundy/10 text-xs uppercase tracking-wide text-ink/60">
                   <th className="px-5 py-3">Name</th>
                   <th className="px-5 py-3">Phone</th>
                   <th className="px-5 py-3">Service</th>
@@ -159,7 +159,7 @@ function Dashboard({ user }: { user: User }) {
                       </span>
                     </td>
                     <td className="px-5 py-3 text-ink/70">₹{b.depositAmount}</td>
-                    <td className="px-5 py-3 text-ink/50">
+                    <td className="px-5 py-3 text-ink/60">
                       {b.createdAt ? new Date(b.createdAt).toLocaleString() : "—"}
                     </td>
                   </tr>
