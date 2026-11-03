@@ -73,7 +73,7 @@ export default function Craftsmanship() {
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gold">
             Why Jolly &amp; Honest
           </p>
-          <h2 className="mt-4 font-serif text-4xl font-semibold sm:text-5xl">
+          <h2 className="mt-4 font-serif text-4xl font-light sm:text-5xl">
             Craftsmanship you can trust
           </h2>
         </Reveal>
@@ -83,7 +83,7 @@ export default function Craftsmanship() {
             <Reveal
               key={feature.title}
               delay={(i % 2) * 0.06}
-              className="flex gap-5 rounded-2xl border border-cream/15 bg-cream/[0.04] p-7"
+              className="flex gap-5 border border-cream/15 bg-cream/[0.04] p-7"
             >
               <div className="flex h-12 w-12 flex-none items-center justify-center rounded-full bg-cream/10 text-gold">
                 {feature.icon}

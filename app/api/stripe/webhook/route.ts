@@ -28,27 +28,43 @@ export async function POST(request: Request) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    const bookingId = session.metadata?.bookingId;
 
     // "completed" also fires for delayed payment methods that haven't
-    // cleared yet; only mark the booking paid once the money is in.
-    if (bookingId && session.payment_status === "paid") {
-      const ref = getAdminDb().collection("bookings").doc(bookingId);
-      await getAdminDb().runTransaction(async (tx) => {
-        const booking = await tx.get(ref);
-        // Stripe retries and can deliver an event twice: only the first
-        // delivery for a session we created should change anything.
-        if (
-          !booking.exists ||
-          booking.get("status") !== "pending_payment" ||
-          booking.get("stripeSessionId") !== session.id
-        ) {
-          return;
-        }
-        tx.update(ref, { status: "paid", paidAt: Timestamp.now() });
-      });
+    // cleared yet; only mark anything paid once the money is in.
+    if (session.payment_status === "paid") {
+      if (session.metadata?.kind === "order" && session.metadata.orderId) {
+        await markPaid("orders", session.metadata.orderId, session, "total");
+      } else if (session.metadata?.bookingId) {
+        await markPaid("bookings", session.metadata.bookingId, session, "depositAmount");
+      }
     }
   }
 
   return NextResponse.json({ received: true });
+}
+
+async function markPaid(
+  collection: "orders" | "bookings",
+  id: string,
+  session: Stripe.Checkout.Session,
+  amountField: "total" | "depositAmount"
+) {
+  const ref = getAdminDb().collection(collection).doc(id);
+  await getAdminDb().runTransaction(async (tx) => {
+    const doc = await tx.get(ref);
+    // Stripe retries and can deliver an event twice: only the first delivery
+    // for a session we created, for the amount we expected, changes anything.
+    if (
+      !doc.exists ||
+      doc.get("status") !== "pending_payment" ||
+      doc.get("stripeSessionId") !== session.id
+    ) {
+      return;
+    }
+    if (session.amount_total !== doc.get(amountField) * 100) {
+      console.error("Stripe amount mismatch", collection, id);
+      return;
+    }
+    tx.update(ref, { status: "paid", paidAt: Timestamp.now() });
+  });
 }

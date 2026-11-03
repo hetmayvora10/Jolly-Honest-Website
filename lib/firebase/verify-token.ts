@@ -12,9 +12,15 @@ const JWKS = createRemoteJWKSet(
   )
 );
 
-export async function verifyFirebaseIdToken(
-  idToken: string
-): Promise<{ uid: string; email: string | null }> {
+export type VerifiedIdToken = {
+  uid: string;
+  email: string | null;
+  emailVerified: boolean;
+  /** Seconds since epoch when the user last actually entered their password. */
+  authTime: number;
+};
+
+export async function verifyFirebaseIdToken(idToken: string): Promise<VerifiedIdToken> {
   const projectId = process.env.FIREBASE_PROJECT_ID;
   if (!projectId) {
     throw new Error("Missing FIREBASE_PROJECT_ID environment variable");
@@ -32,7 +38,12 @@ export async function verifyFirebaseIdToken(
   }
 
   const email = typeof payload.email === "string" ? payload.email.toLowerCase() : null;
-  return { uid: payload.sub, email };
+  return {
+    uid: payload.sub,
+    email,
+    emailVerified: payload.email_verified === true,
+    authTime: typeof payload.auth_time === "number" ? payload.auth_time : 0,
+  };
 }
 
 // A valid Firebase token only proves someone has *an* account in this project.

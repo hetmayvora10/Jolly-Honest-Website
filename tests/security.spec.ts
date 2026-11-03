@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { isAdminEmail } from "../lib/firebase/verify-token";
+import { priceCart, cartLineSchema } from "../lib/pricing";
+import { safeNextPath } from "../lib/http";
 
 // These hit the real server routes, but every check here rejects the request
 // before it reaches Firestore or Stripe, so CI needs no backend secrets.
@@ -57,12 +59,60 @@ test.describe("Security", () => {
     expect(res.status()).toBe(400);
   });
 
-  test("admin API rejects a forged token", { tag: "@regression" }, async ({ request }) => {
-    const res = await request.get("/api/admin/bookings", {
-      headers: { Authorization: "Bearer eyJhbGciOiJub25lIn0.eyJzdWIiOiJ4In0." },
-    });
+  test("admin API rejects requests without a session", { tag: "@smoke" }, async ({ request }) => {
+    const res = await request.get("/api/admin/bookings");
     expect(res.status()).toBe(401);
     expect(res.headers()["cache-control"]).toBe("no-store");
+  });
+
+  test("admin API rejects a forged session cookie", { tag: "@regression" }, async ({ request }) => {
+    // alg "none" token claiming to be someone: must never be accepted.
+    const forged = "eyJhbGciOiJub25lIn0.eyJzdWIiOiJ4IiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSJ9.";
+    const res = await request.get("/api/admin/bookings", { headers: { Cookie: `jh_session=${forged}` } });
+    expect(res.status()).toBe(401);
+  });
+
+  test("checkout API requires a session", { tag: "@regression" }, async ({ request }) => {
+    const res = await request.post("/api/checkout", { data: { lines: [], address: {} } });
+    expect(res.status()).toBe(401);
+  });
+
+  test("checkout API rejects requests from other sites", { tag: "@regression" }, async ({ request }) => {
+    const res = await request.post("/api/checkout", {
+      headers: { Origin: "https://evil.example" },
+      data: { lines: [], address: {} },
+    });
+    expect(res.status()).toBe(403);
+  });
+
+  test("session API rejects malformed sign-in requests", { tag: "@regression" }, async ({ request }) => {
+    expect((await request.post("/api/auth/session", { data: { idToken: "" } })).status()).toBe(400);
+    const crossSite = await request.post("/api/auth/session", {
+      headers: { Origin: "https://evil.example" },
+      data: { idToken: "x" },
+    });
+    expect(crossSite.status()).toBe(403);
+  });
+
+  test("checkout prices come from the catalogue, not the browser", { tag: "@regression" }, () => {
+    const tampered = { productId: "m-white-oxford-shirt", size: "M", color: "White", qty: 2, price: 1, unitPrice: 1 };
+    const result = priceCart([tampered]);
+    expect(result.ok && result.subtotal).toBe(3490 * 2);
+
+    expect(priceCart([{ ...tampered, productId: "made-up" }]).ok).toBe(false);
+    expect(priceCart([{ ...tampered, size: "XXXXL" }]).ok).toBe(false);
+    expect(priceCart([{ ...tampered, color: "Gold Leaf" }]).ok).toBe(false);
+    expect(priceCart([]).ok).toBe(false);
+    expect(cartLineSchema.safeParse({ ...tampered, qty: 0 }).success).toBe(false);
+    expect(cartLineSchema.safeParse({ ...tampered, qty: 11 }).success).toBe(false);
+    expect(cartLineSchema.safeParse({ ...tampered, qty: 1.5 }).success).toBe(false);
+  });
+
+  test("post-sign-in redirects stay on this site", { tag: "@regression" }, () => {
+    expect(safeNextPath("/checkout")).toBe("/checkout");
+    for (const evil of ["//evil.example", "https://evil.example", "/\\evil.example", "javascript:alert(1)", "", null]) {
+      expect(safeNextPath(evil), String(evil)).toBe("/account");
+    }
   });
 
   test("admin allowlist fails closed and matches exactly", { tag: "@regression" }, () => {

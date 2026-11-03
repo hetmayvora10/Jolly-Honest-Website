@@ -94,7 +94,7 @@ export default function Services() {
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-burgundy/70">
             What We Tailor
           </p>
-          <h2 className="mt-4 font-serif text-4xl font-semibold text-ink sm:text-5xl">
+          <h2 className="mt-4 font-serif text-4xl font-light text-ink sm:text-5xl">
             Our Services
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-ink/70">
@@ -108,12 +108,12 @@ export default function Services() {
             <Reveal
               key={service.title}
               delay={(i % 3) * 0.06}
-              className="rounded-2xl border border-burgundy/10 bg-cream p-8"
+              className="border border-burgundy/10 bg-cream p-8"
             >
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-burgundy text-cream">
                 {service.icon}
               </div>
-              <h3 className="mt-6 font-serif text-2xl font-semibold text-ink">
+              <h3 className="mt-6 font-serif text-2xl font-medium text-ink">
                 {service.title}
               </h3>
               <p className="mt-2 leading-relaxed text-ink/70">

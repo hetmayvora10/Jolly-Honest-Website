@@ -20,18 +20,18 @@ export default function Contact() {
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-burgundy/70">
             Visit the Shop
           </p>
-          <h2 className="mt-4 font-serif text-4xl font-semibold text-ink sm:text-5xl">
+          <h2 className="mt-4 font-serif text-4xl font-light text-ink sm:text-5xl">
             Come see us in Navrangpura
           </h2>
         </Reveal>
 
-        <div className="mt-14 grid gap-8 overflow-hidden rounded-3xl border border-burgundy/10 bg-white shadow-sm lg:grid-cols-2">
+        <div className="mt-14 grid gap-8 overflow-hidden border border-burgundy/10 bg-white lg:grid-cols-2">
           <Reveal
             from="left"
             className="flex flex-col justify-center gap-8 p-8 sm:p-10"
           >
             <div>
-              <h3 className="font-serif text-2xl font-semibold text-ink">
+              <h3 className="font-serif text-2xl font-medium text-ink">
                 Address
               </h3>
               <p className="mt-2 leading-relaxed text-ink/70">{ADDRESS}</p>
@@ -48,7 +48,7 @@ export default function Contact() {
             </div>
 
             <div>
-              <h3 className="font-serif text-2xl font-semibold text-ink">
+              <h3 className="font-serif text-2xl font-medium text-ink">
                 Hours
               </h3>
               <dl className="mt-2 space-y-1">
@@ -62,7 +62,7 @@ export default function Contact() {
             </div>
 
             <div>
-              <h3 className="font-serif text-2xl font-semibold text-ink">
+              <h3 className="font-serif text-2xl font-medium text-ink">
                 Contact
               </h3>
               <p className="mt-2 text-ink/70">
@@ -71,7 +71,7 @@ export default function Contact() {
               <div className="mt-3 flex flex-wrap gap-3">
                 <a
                   href={`tel:${PHONE_TEL}`}
-                  className="inline-block rounded-full bg-burgundy px-6 py-3 text-sm font-semibold text-cream pressable hover:bg-burgundy-dark"
+                  className="inline-flex min-h-12 items-center justify-center bg-burgundy px-6 text-[11px] font-semibold uppercase tracking-[0.25em] text-cream pressable hover:bg-burgundy-dark"
                 >
                   Call {PHONE_DISPLAY}
                 </a>
@@ -79,7 +79,7 @@ export default function Contact() {
                   href={`https://wa.me/${PHONE_WHATSAPP}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block rounded-full border border-burgundy/30 px-6 py-3 text-sm font-semibold text-burgundy pressable hover:bg-burgundy/5"
+                  className="inline-flex min-h-12 items-center justify-center border border-burgundy/30 px-6 text-[11px] font-semibold uppercase tracking-[0.25em] text-burgundy pressable hover:bg-burgundy/5"
                 >
                   WhatsApp Us
                 </a>

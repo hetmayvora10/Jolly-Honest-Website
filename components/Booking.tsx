@@ -54,7 +54,7 @@ export default function Booking() {
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-burgundy/70">
             Reserve Your Slot
           </p>
-          <h2 className="mt-4 font-serif text-4xl font-semibold text-ink sm:text-5xl">
+          <h2 className="mt-4 font-serif text-4xl font-light text-ink sm:text-5xl">
             Book a Fitting
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-lg leading-relaxed text-ink/70">
@@ -66,7 +66,7 @@ export default function Booking() {
         <Reveal delay={0.06} className="mt-12">
           <form
             onSubmit={handleSubmit}
-            className="grid gap-5 rounded-3xl border border-burgundy/10 bg-cream p-8 sm:grid-cols-2 sm:p-10"
+            className="grid gap-5 border border-burgundy/10 bg-cream p-8 sm:grid-cols-2 sm:p-10"
           >
             {/* Honeypot — hidden from real users, bots tend to fill every field */}
             <input
@@ -84,7 +84,7 @@ export default function Booking() {
                 name="name"
                 required
                 minLength={2}
-                className="rounded-xl border border-burgundy/15 bg-white px-4 py-3 text-base text-ink focus:border-burgundy"
+                className="border border-burgundy/15 bg-white px-4 py-3 text-base text-ink focus:border-burgundy"
               />
             </label>
 
@@ -95,7 +95,7 @@ export default function Booking() {
                 type="tel"
                 required
                 placeholder="+91 98765 43210"
-                className="rounded-xl border border-burgundy/15 bg-white px-4 py-3 text-base text-ink focus:border-burgundy"
+                className="border border-burgundy/15 bg-white px-4 py-3 text-base text-ink focus:border-burgundy"
               />
             </label>
 
@@ -104,7 +104,7 @@ export default function Booking() {
               <input
                 name="email"
                 type="email"
-                className="rounded-xl border border-burgundy/15 bg-white px-4 py-3 text-base text-ink focus:border-burgundy"
+                className="border border-burgundy/15 bg-white px-4 py-3 text-base text-ink focus:border-burgundy"
               />
             </label>
 
@@ -114,7 +114,7 @@ export default function Booking() {
                 name="service"
                 required
                 defaultValue=""
-                className="rounded-xl border border-burgundy/15 bg-white px-4 py-3 text-base text-ink focus:border-burgundy"
+                className="border border-burgundy/15 bg-white px-4 py-3 text-base text-ink focus:border-burgundy"
               >
                 <option value="" disabled>
                   Choose a service
@@ -133,7 +133,7 @@ export default function Booking() {
                 name="preferredDate"
                 type="date"
                 required
-                className="rounded-xl border border-burgundy/15 bg-white px-4 py-3 text-base text-ink focus:border-burgundy"
+                className="border border-burgundy/15 bg-white px-4 py-3 text-base text-ink focus:border-burgundy"
               />
             </label>
 
@@ -144,12 +144,12 @@ export default function Booking() {
                 rows={3}
                 maxLength={500}
                 placeholder="Tell us about the occasion, fabric preference, etc."
-                className="resize-none rounded-xl border border-burgundy/15 bg-white px-4 py-3 text-base text-ink focus:border-burgundy"
+                className="resize-none border border-burgundy/15 bg-white px-4 py-3 text-base text-ink focus:border-burgundy"
               />
             </label>
 
             {error && (
-              <p role="alert" className="sm:col-span-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+              <p role="alert" className="sm:col-span-2 bg-red-50 px-4 py-3 text-sm text-red-700">
                 {error}
               </p>
             )}
@@ -157,7 +157,7 @@ export default function Booking() {
             <button
               type="submit"
               disabled={status === "submitting"}
-              className="sm:col-span-2 mt-2 rounded-full bg-burgundy px-8 py-3.5 text-sm font-semibold tracking-wide text-cream pressable hover:bg-burgundy-dark disabled:opacity-60"
+              className="sm:col-span-2 mt-2 inline-flex min-h-12 items-center justify-center bg-burgundy px-8 text-[11px] font-semibold uppercase tracking-[0.25em] text-cream pressable hover:bg-burgundy-dark disabled:opacity-60"
             >
               {status === "submitting" ? "Redirecting to payment…" : "Pay ₹500 Deposit & Book"}
             </button>
