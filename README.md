@@ -22,7 +22,9 @@ A few decisions worth calling out:
 - **Validation & spam protection**: Zod schema validation, a honeypot field, and a duplicate-submission check (same phone number within 10 minutes) on the booking endpoint.
 - **Admin auth without `firebase-admin/auth`**: `firebase-admin/auth`'s `verifyIdToken()` transitively pulls in `jwks-rsa`, which does a CJS `require()` of the ESM-only `jose` package — this crashes at runtime on Vercel (`ERR_REQUIRE_ESM`), regardless of bundler. Instead, `lib/firebase/verify-token.ts` verifies the Firebase ID token directly with `jose` (imported as proper ESM), doing the same RS256/JWKS check against Google's `securetoken` endpoint without the broken dependency chain.
 - **Production builds use webpack, not Turbopack** (`next build --webpack`) — see `package.json`. This was the first workaround attempted for the issue above; kept as the stable, verified build path.
-- **Payments**: Stripe Checkout (hosted, redirect-based) rather than Elements, so no card data or client-side Stripe.js touches the app. A webhook confirms payment server-side before a booking is marked `paid`.
+- **Payments**: Stripe Checkout (hosted, redirect-based) rather than Elements, so no card data or client-side Stripe.js touches the app. A signature-verified webhook confirms payment server-side before a booking is marked `paid`, and ignores duplicate deliveries and unpaid sessions.
+- **Admin access is an allowlist, not just a login.** Anyone can create a Firebase account with the public web API key, so `/api/admin/bookings` also requires the token's email to be in `ADMIN_EMAILS`. With it unset, nobody gets in.
+- **Hardening**: per-IP rate limiting on bookings (counted in Firestore so it holds across serverless instances, with IPs hashed), same-origin and `application/json` checks on the booking API, a Content Security Policy plus standard security headers, no published source maps, admin sessions that end when the tab closes, and `no-store` on customer data. Covered by `tests/security.spec.ts`.
 
 ## Local development
 
@@ -39,6 +41,7 @@ Requires these environment variables (see `.env.local`, not committed):
 | `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` | Service account credentials for the Admin SDK |
 | `STRIPE_SECRET_KEY` | Stripe API access (test mode while in development) |
 | `STRIPE_WEBHOOK_SECRET` | Verifies incoming Stripe webhook signatures |
+| `ADMIN_EMAILS` | Comma-separated emails allowed into `/admin`; empty means no one |
 
 Firestore rules and indexes are deployed separately via the Firebase CLI:
 

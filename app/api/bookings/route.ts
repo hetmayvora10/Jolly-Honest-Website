@@ -3,10 +3,25 @@ import { Timestamp } from "firebase-admin/firestore";
 import { getAdminDb } from "@/lib/firebase/admin";
 import { getStripe, DEPOSIT_AMOUNT_INR } from "@/lib/stripe";
 import { bookingSchema } from "@/lib/booking";
+import { isRateLimited, clientIp } from "@/lib/rate-limit";
 
 const DUPLICATE_WINDOW_MINUTES = 10;
+const BOOKINGS_PER_IP_PER_HOUR = 5;
 
 export async function POST(request: Request) {
+  // There are no cookies or sessions here, so classic CSRF has nothing to
+  // ride on. These checks still stop other sites from submitting bookings
+  // through a visitor's browser: a cross-site <form> can't send
+  // application/json, and fetch() from another origin carries its Origin.
+  const siteOrigin = new URL(request.url).origin;
+  const origin = request.headers.get("origin");
+  if (origin && origin !== siteOrigin) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  if (request.headers.get("content-type")?.split(";")[0].trim() !== "application/json") {
+    return NextResponse.json({ error: "Unsupported content type" }, { status: 415 });
+  }
+
   const body = await request.json().catch(() => null);
   const parsed = bookingSchema.safeParse(body);
 
@@ -23,6 +38,20 @@ export async function POST(request: Request) {
   }
 
   const { name, phone, email, service, preferredDate, notes } = parsed.data;
+
+  // The phone-number duplicate check below is trivially dodged by varying the
+  // number, so cap how many bookings (and Stripe sessions) one IP can create.
+  if (
+    await isRateLimited(`booking:${clientIp(request)}`, {
+      limit: BOOKINGS_PER_IP_PER_HOUR,
+      windowMs: 60 * 60 * 1000,
+    })
+  ) {
+    return NextResponse.json(
+      { error: "Too many booking attempts. Please try again later or call us directly." },
+      { status: 429 }
+    );
+  }
 
   const db = getAdminDb();
 
@@ -54,8 +83,6 @@ export async function POST(request: Request) {
     createdAt: Timestamp.now(),
   });
 
-  const origin = request.headers.get("origin") ?? new URL(request.url).origin;
-
   try {
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
@@ -74,8 +101,10 @@ export async function POST(request: Request) {
         },
       ],
       metadata: { bookingId: bookingRef.id },
-      success_url: `${origin}/booking/success?booking_id=${bookingRef.id}`,
-      cancel_url: `${origin}/#book`,
+      // Built from the request URL, not the client-controlled Origin header,
+      // so a forged header can't send customers to another site after paying.
+      success_url: `${siteOrigin}/booking/success?booking_id=${bookingRef.id}`,
+      cancel_url: `${siteOrigin}/#book`,
     });
 
     await bookingRef.update({ stripeSessionId: session.id });
@@ -83,7 +112,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ url: session.url });
   } catch (err) {
     await bookingRef.update({ status: "cancelled", error: "stripe_session_failed" });
-    console.error("Stripe checkout session creation failed", err);
+    // Message only: the full error object can carry request details.
+    console.error(
+      "Stripe checkout session creation failed",
+      bookingRef.id,
+      err instanceof Error ? err.message : "unknown error"
+    );
     return NextResponse.json(
       { error: "Could not start payment. Please try again or call us directly." },
       { status: 502 }

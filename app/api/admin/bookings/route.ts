@@ -1,20 +1,28 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase/admin";
-import { verifyFirebaseIdToken } from "@/lib/firebase/verify-token";
+import { verifyFirebaseIdToken, isAdminEmail } from "@/lib/firebase/verify-token";
 import type { BookingRecord } from "@/lib/booking";
+
+// Customer PII: never let a browser or proxy cache this response.
+const NO_STORE = { "Cache-Control": "no-store" };
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
   const idToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
 
   if (!idToken) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: NO_STORE });
   }
 
+  let email: string | null;
   try {
-    await verifyFirebaseIdToken(idToken);
+    ({ email } = await verifyFirebaseIdToken(idToken));
   } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: NO_STORE });
+  }
+
+  if (!isAdminEmail(email)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403, headers: NO_STORE });
   }
 
   const snapshot = await getAdminDb()
@@ -41,5 +49,5 @@ export async function GET(request: Request) {
     };
   });
 
-  return NextResponse.json({ bookings });
+  return NextResponse.json({ bookings }, { headers: NO_STORE });
 }
