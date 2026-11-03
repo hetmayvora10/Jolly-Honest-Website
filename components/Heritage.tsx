@@ -16,7 +16,7 @@ export default function Heritage() {
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-burgundy/70">
               Our Heritage
             </p>
-            <h2 className="mt-4 font-serif text-4xl font-semibold leading-tight text-ink sm:text-5xl">
+            <h2 className="mt-4 font-serif text-4xl font-light leading-tight text-ink sm:text-5xl">
               Three generations of the tailor&apos;s craft
             </h2>
             <div className="mt-6 space-y-4 text-base leading-relaxed text-ink/70 sm:text-lg">
@@ -40,9 +40,9 @@ export default function Heritage() {
             {STATS.map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-2xl border border-burgundy/10 bg-white px-6 py-8 text-center shadow-sm"
+                className="border border-burgundy/10 bg-white px-6 py-8 text-center"
               >
-                <div className="font-serif text-4xl font-semibold text-burgundy sm:text-5xl">
+                <div className="font-serif text-4xl font-light text-burgundy sm:text-5xl">
                   {stat.value}
                 </div>
                 <div className="mt-2 text-sm font-medium uppercase tracking-wide text-ink/60">

@@ -4,9 +4,9 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const NAV_LINKS = [
+  { href: "/shop", label: "Shop" },
   { href: "#heritage", label: "Heritage" },
   { href: "#services", label: "Services" },
-  { href: "#book", label: "Book a Fitting" },
   { href: "#craftsmanship", label: "Craftsmanship" },
   { href: "#reviews", label: "Reviews" },
   { href: "#visit", label: "Visit Us" },
@@ -41,17 +41,17 @@ export default function Navbar() {
             className="rounded-full ring-1 ring-burgundy/20"
             priority
           />
-          <span className="font-serif text-xl font-semibold tracking-wide text-burgundy sm:text-2xl">
+          <span className="font-serif text-xl font-medium tracking-[0.08em] text-burgundy sm:text-2xl">
             Jolly &amp; Honest
           </span>
         </a>
 
-        <ul className="hidden items-center gap-9 md:flex">
+        <ul className="hidden items-center gap-7 lg:flex">
           {NAV_LINKS.map((link) => (
             <li key={link.href}>
               <a
                 href={link.href}
-                className="inline-flex min-h-7 items-center text-sm font-medium tracking-wide text-ink/80 transition-colors hover:text-burgundy"
+                className="inline-flex min-h-7 items-center text-[11px] font-medium uppercase tracking-[0.22em] text-ink/80 transition-colors hover:text-burgundy"
               >
                 {link.label}
               </a>
@@ -61,7 +61,7 @@ export default function Navbar() {
 
         <a
           href="#book"
-          className="hidden rounded-full bg-burgundy px-5 py-2.5 text-sm font-medium text-cream shadow-sm pressable hover:bg-burgundy-dark md:inline-block"
+          className="hidden min-h-11 items-center bg-burgundy px-6 text-[11px] font-semibold uppercase tracking-[0.25em] text-cream pressable hover:bg-burgundy-dark md:inline-flex"
         >
           Book a Fitting
         </a>
@@ -72,7 +72,7 @@ export default function Navbar() {
           aria-label="Toggle menu"
           aria-expanded={open}
           aria-controls="mobile-menu"
-          className="flex h-11 w-11 flex-col items-center justify-center gap-1.5 md:hidden"
+          className="flex h-11 w-11 flex-col items-center justify-center gap-1.5 lg:hidden"
         >
           <span
             className={`h-[1.5px] w-6 bg-burgundy transition-transform ${
@@ -93,7 +93,7 @@ export default function Navbar() {
       </nav>
 
       {open && (
-        <div id="mobile-menu" className="border-t border-burgundy/10 bg-cream px-6 pb-6 md:hidden">
+        <div id="mobile-menu" className="border-t border-burgundy/10 bg-cream px-6 pb-6 lg:hidden">
           <ul className="flex flex-col gap-1 pt-4">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
@@ -110,7 +110,7 @@ export default function Navbar() {
           <a
             href="#book"
             onClick={() => setOpen(false)}
-            className="mt-3 block rounded-full bg-burgundy px-5 py-3 text-center text-sm font-medium text-cream pressable hover:bg-burgundy-dark"
+            className="mt-3 flex min-h-12 items-center justify-center bg-burgundy px-5 text-[11px] font-semibold uppercase tracking-[0.25em] text-cream pressable hover:bg-burgundy-dark"
           >
             Book a Fitting
           </a>

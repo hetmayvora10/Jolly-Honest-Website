@@ -40,12 +40,12 @@ export default function Reviews() {
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-burgundy/70">
             Trusted in Ahmedabad
           </p>
-          <h2 className="mt-4 font-serif text-4xl font-semibold text-ink sm:text-5xl">
+          <h2 className="mt-4 font-serif text-4xl font-light text-ink sm:text-5xl">
             Rated by our customers
           </h2>
 
-          <div className="mt-10 flex flex-col items-center gap-3 rounded-3xl border border-burgundy/10 bg-cream px-10 py-10 sm:mx-auto sm:max-w-md">
-            <div aria-hidden="true" className="font-serif text-6xl font-semibold text-burgundy">
+          <div className="mt-10 flex flex-col items-center gap-3 border border-burgundy/10 bg-cream px-10 py-10 sm:mx-auto sm:max-w-md">
+            <div aria-hidden="true" className="font-serif text-6xl font-light text-burgundy">
               {RATING}
             </div>
             <div role="img" aria-label={`Rated ${RATING} out of 5`} className="flex gap-1">

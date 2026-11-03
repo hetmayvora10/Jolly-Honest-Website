@@ -4,23 +4,15 @@ import { getAdminDb } from "@/lib/firebase/admin";
 import { getStripe, DEPOSIT_AMOUNT_INR } from "@/lib/stripe";
 import { bookingSchema } from "@/lib/booking";
 import { isRateLimited, clientIp } from "@/lib/rate-limit";
+import { rejectCrossSite } from "@/lib/http";
 
 const DUPLICATE_WINDOW_MINUTES = 10;
 const BOOKINGS_PER_IP_PER_HOUR = 5;
 
 export async function POST(request: Request) {
-  // There are no cookies or sessions here, so classic CSRF has nothing to
-  // ride on. These checks still stop other sites from submitting bookings
-  // through a visitor's browser: a cross-site <form> can't send
-  // application/json, and fetch() from another origin carries its Origin.
+  const rejected = rejectCrossSite(request);
+  if (rejected) return rejected;
   const siteOrigin = new URL(request.url).origin;
-  const origin = request.headers.get("origin");
-  if (origin && origin !== siteOrigin) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-  if (request.headers.get("content-type")?.split(";")[0].trim() !== "application/json") {
-    return NextResponse.json({ error: "Unsupported content type" }, { status: 415 });
-  }
 
   const body = await request.json().catch(() => null);
   const parsed = bookingSchema.safeParse(body);

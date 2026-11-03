@@ -21,7 +21,11 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Jolly & Honest | Gents Tailoring, Ahmedabad",
+  metadataBase: new URL("https://jollyhonest.vercel.app"),
+  title: {
+    default: "Jolly & Honest | Gents Tailoring, Ahmedabad",
+    template: "%s | Jolly & Honest",
+  },
   description:
     "Jolly & Honest — 74 years of bespoke gents tailoring in Navrangpura, Ahmedabad. Sherwanis, shirts, coats, suits and trousers, hand-tailored to fit.",
   verification: {

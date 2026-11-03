@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { initializeAuth, browserSessionPersistence, type Auth } from "firebase/auth";
+import { initializeAuth, inMemoryPersistence, type Auth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -21,14 +21,14 @@ function getFirebaseApp(): FirebaseApp {
 // Lazy by design: this must only run in the browser (inside useEffect/handlers),
 // never at module scope, so builds don't require Firebase env vars to prerender.
 //
-// Session persistence instead of the default (IndexedDB, kept indefinitely):
-// the admin's refresh token is dropped when the tab closes rather than
-// lingering in long-lived storage on a shared shop computer. No popup/redirect
-// resolver is loaded since the admin only signs in with email and password.
+// In-memory only: Firebase is used just long enough to check the password and
+// hand a fresh ID token to /api/auth/session, which sets an HttpOnly cookie.
+// No Firebase token is ever written to localStorage, sessionStorage or
+// IndexedDB. No popup/redirect resolver is loaded (email + password only).
 export function getClientAuth(): Auth {
   if (!authInstance) {
     authInstance = initializeAuth(getFirebaseApp(), {
-      persistence: browserSessionPersistence,
+      persistence: inMemoryPersistence,
     });
   }
   return authInstance;
