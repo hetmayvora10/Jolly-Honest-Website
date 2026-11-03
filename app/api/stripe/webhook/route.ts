@@ -19,7 +19,10 @@ export async function POST(request: Request) {
   try {
     event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
   } catch (err) {
-    console.error("Stripe webhook signature verification failed", err);
+    console.error(
+      "Stripe webhook signature verification failed",
+      err instanceof Error ? err.message : "unknown error"
+    );
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -27,10 +30,22 @@ export async function POST(request: Request) {
     const session = event.data.object as Stripe.Checkout.Session;
     const bookingId = session.metadata?.bookingId;
 
-    if (bookingId) {
-      await getAdminDb().collection("bookings").doc(bookingId).update({
-        status: "paid",
-        paidAt: Timestamp.now(),
+    // "completed" also fires for delayed payment methods that haven't
+    // cleared yet; only mark the booking paid once the money is in.
+    if (bookingId && session.payment_status === "paid") {
+      const ref = getAdminDb().collection("bookings").doc(bookingId);
+      await getAdminDb().runTransaction(async (tx) => {
+        const booking = await tx.get(ref);
+        // Stripe retries and can deliver an event twice: only the first
+        // delivery for a session we created should change anything.
+        if (
+          !booking.exists ||
+          booking.get("status") !== "pending_payment" ||
+          booking.get("stripeSessionId") !== session.id
+        ) {
+          return;
+        }
+        tx.update(ref, { status: "paid", paidAt: Timestamp.now() });
       });
     }
   }

@@ -93,6 +93,10 @@ function Dashboard({ user }: { user: User }) {
         const res = await fetch("/api/admin/bookings", {
           headers: { Authorization: `Bearer ${idToken}` },
         });
+        if (res.status === 403) {
+          if (!cancelled) setError("This account is not authorised to view bookings.");
+          return;
+        }
         if (!res.ok) throw new Error("Failed to load bookings");
         const data = await res.json();
         if (!cancelled) setBookings(data.bookings);

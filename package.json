@@ -18,7 +18,7 @@
     "firebase-admin": "^14.5.0",
     "framer-motion": "^12.40.0",
     "jose": "^6.2.12",
-    "next": "16.2.9",
+    "next": "^16.4.5",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "stripe": "^23.0.0",
@@ -31,12 +31,17 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.9",
+    "eslint-config-next": "^16.4.5",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
   "browserslist": [
     "defaults and fully supports es6-module",
     "maintained node versions"
-  ]
+  ],
+  "overrides": {
+    "@firebase/firestore": {
+      "@grpc/grpc-js": "^1.14.7"
+    }
+  }
 }

@@ -17,7 +17,7 @@ export const bookingSchema = z.object({
     .regex(/^[0-9+\s-]{7,15}$/, "Enter a valid phone number"),
   email: z.union([z.literal(""), z.string().trim().email()]).optional(),
   service: z.enum(SERVICES),
-  preferredDate: z.string().trim().min(1, "Pick a preferred date"),
+  preferredDate: z.iso.date("Pick a preferred date"),
   notes: z.string().trim().max(500).optional(),
   // Honeypot: real users never fill this in; bots usually do.
   website: z.string().max(0, "Spam detected").optional(),
