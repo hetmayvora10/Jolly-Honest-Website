@@ -7,7 +7,9 @@ import { formatINR, getProduct } from "@/lib/catalog";
 import { INDIAN_STATES } from "@/lib/orders";
 import { errorBox, fieldInput, fieldLabel, primaryButton } from "./ui";
 
-export default function CheckoutForm({ email }: { email: string | null }) {
+type Mode = { kind: "account"; email: string | null } | { kind: "guest" };
+
+export default function CheckoutForm({ mode }: { mode: Mode }) {
   const lines = useBag();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +34,13 @@ export default function CheckoutForm({ email }: { email: string | null }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // References only — the server looks up every price itself.
-        body: JSON.stringify({ lines: items.map(({ line }) => line), address }),
+        body: JSON.stringify({
+          lines: items.map(({ line }) => line),
+          address,
+          ...(mode.kind === "guest"
+            ? { guestEmail: String(form.get("guestEmail") ?? ""), website: String(form.get("website") ?? "") }
+            : {}),
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -62,7 +70,19 @@ export default function CheckoutForm({ email }: { email: string | null }) {
     <form onSubmit={handleSubmit} className="grid gap-12 lg:grid-cols-[1.4fr_1fr]">
       <fieldset className="grid gap-5 sm:grid-cols-2">
         <legend className="mb-6 font-serif text-2xl text-ink">Delivery Address</legend>
-        <p className="text-sm text-ink/70 sm:col-span-2">Signed in as {email}</p>
+        {mode.kind === "account" ? (
+          <p className="text-sm text-ink/70 sm:col-span-2">Signed in as {mode.email}</p>
+        ) : (
+          <>
+            {/* Honeypot — hidden from real shoppers, bots tend to fill every field */}
+            <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+            <label className={`${fieldLabel} sm:col-span-2`}>
+              Email
+              <input name="guestEmail" type="email" required maxLength={254} autoComplete="email" className={fieldInput} />
+              <span className="normal-case tracking-normal text-ink/60">For your order confirmation from Stripe.</span>
+            </label>
+          </>
+        )}
         <label className={`${fieldLabel} sm:col-span-2`}>
           Full name
           <input name="fullName" required minLength={2} maxLength={100} autoComplete="name" className={fieldInput} />

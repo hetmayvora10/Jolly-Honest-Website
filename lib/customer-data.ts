@@ -12,6 +12,17 @@ export async function listOrdersFor(uid: string): Promise<OrderRecord[]> {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
+/**
+ * Guest orders: only IDs from this browser's signed guest-orders cookie are
+ * looked up, and only if the order really was placed as a guest.
+ */
+export async function getGuestOrder(orderId: string, allowedIds: string[]): Promise<OrderRecord | null> {
+  if (!allowedIds.includes(orderId) || !/^[A-Za-z0-9]{1,64}$/.test(orderId)) return null;
+  const doc = await getAdminDb().collection("orders").doc(orderId).get();
+  if (!doc.exists || doc.get("guest") !== true) return null;
+  return toOrderRecord(doc.id, doc.data()!);
+}
+
 /** Returns null both when the order doesn't exist and when it isn't theirs. */
 export async function getOrderFor(uid: string, orderId: string): Promise<OrderRecord | null> {
   if (!/^[A-Za-z0-9]{1,64}$/.test(orderId)) return null;

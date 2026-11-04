@@ -25,7 +25,8 @@ export type OrderStatus = "pending_payment" | "paid" | "cancelled";
 
 export type OrderRecord = {
   id: string;
-  uid: string;
+  uid: string | null;
+  guest: boolean;
   email: string | null;
   lines: PricedLine[];
   subtotal: number;
@@ -40,7 +41,8 @@ export type OrderRecord = {
 export function toOrderRecord(id: string, data: FirebaseFirestore.DocumentData): OrderRecord {
   return {
     id,
-    uid: data.uid,
+    uid: data.uid ?? null,
+    guest: data.guest === true,
     email: data.email ?? null,
     lines: data.lines ?? [],
     subtotal: data.subtotal,

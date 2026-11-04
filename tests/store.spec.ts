@@ -68,9 +68,48 @@ test.describe("Store", () => {
     await expect(bag.emptyMessage).toBeVisible();
   });
 
-  test("checkout sends signed-out shoppers to sign in", { tag: "@regression" }, async ({ page }) => {
+  test("checkout offers guest, sign-in and sign-up", { tag: "@smoke" }, async ({ page }) => {
     await page.goto("/checkout");
-    await expect(page).toHaveURL(/\/signin\?next=(%2F|\/)checkout$/);
+    await expect(page.getByRole("button", { name: "Continue as Guest" })).toBeVisible();
+    await expect(page.getByRole("main").getByRole("link", { name: "Sign In", exact: true })).toHaveAttribute("href", "/signin?next=%2Fcheckout");
+    await expect(page.getByRole("main").getByRole("link", { name: "Create Account" })).toHaveAttribute("href", "/signup?next=%2Fcheckout");
+  });
+
+  test("guest checkout sends references, not prices, then redirects to Stripe", { tag: "@regression" }, async ({ page }) => {
+    const fakeStripeUrl = "https://checkout.stripe.com/c/pay/cs_test_guest";
+    let sent: Record<string, unknown> | null = null;
+    await page.route("**/api/checkout", async (route) => {
+      sent = route.request().postDataJSON();
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ url: fakeStripeUrl }) });
+    });
+    await page.route(fakeStripeUrl, (route) => route.fulfill({ status: 200, contentType: "text/html", body: "stripe" }));
+
+    const product = new ProductPage(page);
+    await product.goto("white-oxford-shirt");
+    await product.chooseSize("M");
+    await product.addToBagButton.click();
+
+    await page.goto("/checkout");
+    await page.getByRole("button", { name: "Continue as Guest" }).click();
+    await page.locator('input[name="guestEmail"]').fill("guest@example.com");
+    await page.locator('input[name="fullName"]').fill("Guest Shopper");
+    await page.locator('input[name="phone"]').fill("+91 98765 43210");
+    await page.locator('input[name="pincode"]').fill("380009");
+    await page.locator('input[name="line1"]').fill("Navrangpura Cross Roads");
+    await page.locator('input[name="city"]').fill("Ahmedabad");
+    await Promise.all([page.waitForURL(fakeStripeUrl), page.getByRole("button", { name: "Pay Securely with Stripe" }).click()]);
+
+    expect(sent).toMatchObject({
+      guestEmail: "guest@example.com",
+      lines: [{ productId: "m-white-oxford-shirt", size: "M", color: "White", qty: 1 }],
+      address: { city: "Ahmedabad", state: "Gujarat" },
+    });
+    expect(JSON.stringify(sent)).not.toMatch(/price/i);
+  });
+
+  test("guest order pages are private to the browser that placed them", { tag: "@regression" }, async ({ page }) => {
+    const res = await page.goto("/orders/someGuestOrderId");
+    expect(res?.status()).toBe(404);
   });
 
   test("account pages require sign-in", { tag: "@regression" }, async ({ page }) => {
