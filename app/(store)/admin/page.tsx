@@ -101,7 +101,7 @@ export default async function AdminPage() {
                 {orders.map((o) => (
                   <tr key={o.id} className="border-b border-ink/5 last:border-0">
                     <td className="px-5 py-3 font-medium text-ink">{o.id.slice(0, 8).toUpperCase()}</td>
-                    <td className={td}>{o.address?.fullName}<br /><span className="text-xs">{o.email}</span></td>
+                    <td className={td}>{o.address?.fullName}<br /><span className="text-xs">{o.email}{o.guest && " · guest"}</span></td>
                     <td className={td}>{o.lines.reduce((n, l) => n + l.qty, 0)}</td>
                     <td className="px-5 py-3"><OrderStatus status={o.status} /></td>
                     <td className={td}>{formatINR(o.total)}</td>

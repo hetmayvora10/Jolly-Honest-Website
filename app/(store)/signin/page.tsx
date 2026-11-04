@@ -12,7 +12,9 @@ type Props = { searchParams: Promise<{ next?: string }> };
 
 export default async function SignInPage({ searchParams }: Props) {
   const next = safeNextPath((await searchParams).next);
-  if (await getSession()) redirect(next);
+  // Unverified users may sign in again (that's how a newly verified email
+  // reaches their session), so only fully verified sessions skip the form.
+  if ((await getSession())?.emailVerified) redirect(next);
 
   return (
     <AuthShell

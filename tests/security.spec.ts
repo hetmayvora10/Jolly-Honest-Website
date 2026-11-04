@@ -13,6 +13,18 @@ const VALID_BOOKING = {
   preferredDate: "2026-12-01",
 };
 
+const VALID_CHECKOUT = {
+  lines: [{ productId: "m-white-oxford-shirt", size: "M", color: "White", qty: 1 }],
+  address: {
+    fullName: "Test Shopper",
+    phone: "+919876500000",
+    line1: "Navrangpura Cross Roads",
+    city: "Ahmedabad",
+    state: "Gujarat",
+    pincode: "380009",
+  },
+};
+
 test.describe("Security", () => {
   test("pages send security headers", { tag: "@smoke" }, async ({ request }) => {
     const res = await request.get("/");
@@ -72,9 +84,18 @@ test.describe("Security", () => {
     expect(res.status()).toBe(401);
   });
 
-  test("checkout API requires a session", { tag: "@regression" }, async ({ request }) => {
-    const res = await request.post("/api/checkout", { data: { lines: [], address: {} } });
+  test("checkout API requires a session or a guest email", { tag: "@regression" }, async ({ request }) => {
+    const res = await request.post("/api/checkout", { data: VALID_CHECKOUT });
     expect(res.status()).toBe(401);
+  });
+
+  test("guest checkout validates the email and honeypot", { tag: "@regression" }, async ({ request }) => {
+    const badEmail = await request.post("/api/checkout", { data: { ...VALID_CHECKOUT, guestEmail: "not-an-email" } });
+    expect(badEmail.status()).toBe(400);
+    const bot = await request.post("/api/checkout", {
+      data: { ...VALID_CHECKOUT, guestEmail: "a@example.com", website: "http://spam.example" },
+    });
+    expect(bot.status()).toBe(400);
   });
 
   test("checkout API rejects requests from other sites", { tag: "@regression" }, async ({ request }) => {

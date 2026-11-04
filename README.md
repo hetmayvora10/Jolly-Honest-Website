@@ -9,7 +9,7 @@ A production website for **Jolly & Honest**, a 74-year-old bespoke gents tailori
 - Marketing site: heritage, services, craftsmanship, customer rating, location/hours with an embedded map
 - **Booking flow**: a fitting-request form that collects customer details, writes to Firestore, and creates a Stripe Checkout session for a ₹500 refundable deposit — confirming the appointment and cutting down no-shows
 - **Admin dashboard** (`/admin`): a server-rendered page, restricted to an allowlist, where the owner reviews bookings, payment status and store orders
-- **Demo store** (`/shop`): Men, Women, Kids and Indian Traditional collections, product pages, a bag, customer sign-up/sign-in, Stripe checkout and order history. Every store page carries a banner saying it's a portfolio demo: the real shop is a bespoke tailor, products are illustrative, and payments run in Stripe test mode. Product imagery is typographic placeholder art until the owner supplies photos (set `image` on a product in `lib/catalog.ts`).
+- **Demo store** (`/shop`): Men, Women, Kids and Indian Traditional collections, product pages, a bag, checkout as a guest or with an account (sign in / sign up), Stripe payment and order history. Every store page carries a banner saying it's a portfolio demo: the real shop is a bespoke tailor, products are illustrative, and payments run in Stripe test mode. Product imagery is typographic placeholder art until the owner supplies photos (set `image` on a product in `lib/catalog.ts`).
 
 ## Stack
 
@@ -19,7 +19,7 @@ Next.js (App Router) · React · TypeScript · Tailwind CSS · Framer Motion · 
 
 A few decisions worth calling out:
 
-- **No direct client access to Firestore.** Security rules deny all reads/writes (`firestore.rules`). Every operation goes through server code (API routes and server components) using the Firebase Admin SDK, which bypasses rules entirely — so every read is explicitly scoped: customers only ever load orders whose `uid` matches their session, and someone else's order ID returns the same 404 as a made-up one.
+- **No direct client access to Firestore.** Security rules deny all reads/writes (`firestore.rules`). Every operation goes through server code (API routes and server components) using the Firebase Admin SDK, which bypasses rules entirely — so every read is explicitly scoped: customers only ever load orders whose `uid` matches their session, and someone else's order ID returns the same 404 as a made-up one. Guest orders are viewable only from the browser that placed them, via a signed HttpOnly cookie listing those order IDs.
 - **Sessions are HttpOnly cookies, not browser-stored tokens.** Firebase Auth (in-memory only) checks the password, then `/api/auth/session` verifies the fresh ID token (signed in within 5 minutes) and sets a `SameSite=Lax`, HttpOnly cookie holding an HS256 JWT signed with `SESSION_SECRET`. Nothing auth-related is written to localStorage, sessionStorage or IndexedDB.
 - **Checkout is priced on the server.** The browser sends product IDs, sizes, colours and quantities; `lib/pricing.ts` reprices everything from the catalogue and rejects unknown products, sizes or colours. The webhook only marks an order paid when Stripe's `amount_total` matches the stored total.
 - **CSRF**: every state-changing route goes through `rejectCrossSite()` (Origin must match, body must be `application/json`) on top of the SameSite cookie. Post-sign-in redirects only accept same-site paths.

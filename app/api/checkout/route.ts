@@ -3,28 +3,30 @@ import { z } from "zod";
 import { Timestamp } from "firebase-admin/firestore";
 import { getAdminDb } from "@/lib/firebase/admin";
 import { getStripe } from "@/lib/stripe";
-import { getSession } from "@/lib/session";
+import {
+  getSession,
+  readGuestOrderIds,
+  createGuestOrdersToken,
+  GUEST_ORDERS_COOKIE,
+  guestOrdersCookieOptions,
+} from "@/lib/session";
 import { rejectCrossSite } from "@/lib/http";
-import { isRateLimited } from "@/lib/rate-limit";
+import { isRateLimited, clientIp } from "@/lib/rate-limit";
 import { cartLineSchema, priceCart, MAX_LINES } from "@/lib/pricing";
 import { addressSchema } from "@/lib/orders";
 
 const bodySchema = z.object({
   lines: z.array(cartLineSchema).max(MAX_LINES),
   address: addressSchema,
+  // Present only for guest checkout.
+  guestEmail: z.email("Enter a valid email address").trim().toLowerCase().max(254).optional(),
+  // Honeypot: real shoppers never see or fill this.
+  website: z.string().max(0).optional(),
 });
 
 export async function POST(request: Request) {
   const rejected = rejectCrossSite(request);
   if (rejected) return rejected;
-
-  const session = await getSession();
-  if (!session) {
-    return NextResponse.json({ error: "Please sign in to check out." }, { status: 401 });
-  }
-  if (!session.emailVerified) {
-    return NextResponse.json({ error: "Please verify your email before checking out." }, { status: 403 });
-  }
 
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
@@ -33,35 +35,55 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+  const { lines, address, guestEmail } = parsed.data;
+
+  // Who is buying: a verified account holder, or a guest who gave an email.
+  const session = await getSession();
+  const asGuest = guestEmail !== undefined;
+  if (!asGuest) {
+    if (!session) {
+      return NextResponse.json({ error: "Please sign in or continue as a guest." }, { status: 401 });
+    }
+    if (!session.emailVerified) {
+      return NextResponse.json(
+        { error: "Please verify your email, or continue as a guest." },
+        { status: 403 }
+      );
+    }
+  }
 
   // Prices come from the catalogue on the server, never from the request.
-  const pricing = priceCart(parsed.data.lines);
+  const pricing = priceCart(lines);
   if (!pricing.ok) {
     return NextResponse.json({ error: pricing.error }, { status: 400 });
   }
 
-  if (await isRateLimited(`checkout:${session.uid}`, { limit: 10, windowMs: 60 * 60 * 1000 })) {
+  // Guests have no account to rate limit, so limit by IP instead.
+  const limitKey = asGuest ? `checkout:ip:${clientIp(request)}` : `checkout:${session!.uid}`;
+  if (await isRateLimited(limitKey, { limit: 10, windowMs: 60 * 60 * 1000 })) {
     return NextResponse.json({ error: "Too many checkout attempts. Please try again later." }, { status: 429 });
   }
 
   const total = pricing.subtotal; // Shipping is free in the demo store.
   const orderRef = getAdminDb().collection("orders").doc();
   await orderRef.set({
-    uid: session.uid,
-    email: session.email,
+    uid: asGuest ? null : session!.uid,
+    guest: asGuest,
+    email: asGuest ? guestEmail : session!.email,
     lines: pricing.lines,
     subtotal: pricing.subtotal,
     total,
-    address: parsed.data.address,
+    address,
     status: "pending_payment",
     createdAt: Timestamp.now(),
   });
 
   const siteOrigin = new URL(request.url).origin;
+  const orderPath = asGuest ? `/orders/${orderRef.id}` : `/account/orders/${orderRef.id}`;
   try {
     const checkout = await getStripe().checkout.sessions.create({
       mode: "payment",
-      customer_email: session.email ?? undefined,
+      customer_email: (asGuest ? guestEmail : session!.email) ?? undefined,
       line_items: pricing.lines.map((line) => ({
         quantity: line.qty,
         price_data: {
@@ -71,12 +93,18 @@ export async function POST(request: Request) {
         },
       })),
       metadata: { kind: "order", orderId: orderRef.id },
-      success_url: `${siteOrigin}/account/orders/${orderRef.id}?status=success`,
+      success_url: `${siteOrigin}${orderPath}?status=success`,
       cancel_url: `${siteOrigin}/bag`,
     });
 
     await orderRef.update({ stripeSessionId: checkout.id });
-    return NextResponse.json({ url: checkout.url });
+
+    const res = NextResponse.json({ url: checkout.url });
+    if (asGuest) {
+      const ids = [...(await readGuestOrderIds()), orderRef.id];
+      res.cookies.set(GUEST_ORDERS_COOKIE, await createGuestOrdersToken(ids), guestOrdersCookieOptions);
+    }
+    return res;
   } catch (err) {
     await orderRef.update({ status: "cancelled", error: "stripe_session_failed" });
     console.error(

@@ -71,3 +71,40 @@ export async function getSession(): Promise<Session | null> {
   const store = await cookies();
   return readSessionToken(store.get(SESSION_COOKIE)?.value);
 }
+
+// ── Guest orders ──────────────────────────────────────────────────────────
+// A guest has no account to prove ownership with, so the browser that placed
+// the order gets a signed, HttpOnly cookie listing its order IDs. Only that
+// browser can view those orders; knowing an order ID alone is not enough.
+
+export const GUEST_ORDERS_COOKIE = "jh_guest_orders";
+const GUEST_AUDIENCE = "jollyhonest:guest-orders";
+const GUEST_DAYS = 30;
+const MAX_GUEST_ORDERS = 20;
+
+export async function readGuestOrderIds(): Promise<string[]> {
+  const token = (await cookies()).get(GUEST_ORDERS_COOKIE)?.value;
+  if (!token) return [];
+  try {
+    const { payload } = await jwtVerify(token, secretKey(), {
+      issuer: ISSUER,
+      audience: GUEST_AUDIENCE,
+      algorithms: ["HS256"],
+    });
+    return Array.isArray(payload.orders) ? payload.orders.filter((id) => typeof id === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function createGuestOrdersToken(orderIds: string[]): Promise<string> {
+  return new SignJWT({ orders: orderIds.slice(-MAX_GUEST_ORDERS) })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(ISSUER)
+    .setAudience(GUEST_AUDIENCE)
+    .setIssuedAt()
+    .setExpirationTime(`${GUEST_DAYS}d`)
+    .sign(secretKey());
+}
+
+export const guestOrdersCookieOptions = { ...sessionCookieOptions, maxAge: GUEST_DAYS * 24 * 60 * 60 };

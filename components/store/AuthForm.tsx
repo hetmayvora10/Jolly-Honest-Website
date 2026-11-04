@@ -103,7 +103,7 @@ export default function AuthForm({ mode, next }: { mode: Mode; next: string }) {
         return;
       }
       await signOut(auth);
-      window.location.assign(mode === "signup" ? "/account?welcome=1" : next);
+      window.location.assign(mode === "signup" && next === "/account" ? "/account?welcome=1" : next);
     } catch (err) {
       setError(err instanceof Error && !(err instanceof FirebaseError) ? err.message : messageFor(err, mode));
     } finally {
